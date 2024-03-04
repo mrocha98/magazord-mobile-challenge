@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -65,10 +66,10 @@ void main() {
 
         test(
           'when there is a string with giving key '
-          'should return it splitting by listSeparator',
+          'should return it decoding from json',
           () {
             const list = ['{"a":1,"b":"xyz"}', '{"a":0,"b":"zyx"}'];
-            final stored = list.join(KeyValueStorageMMKVImpl.listSeparator);
+            final stored = json.encode(list);
             when(() => mmkv.decodeString('key')).thenReturn(stored);
 
             final result = sut.get<List<String>>('key');
@@ -107,9 +108,9 @@ void main() {
         verify(() => mmkv.encodeBool('key', true)).called(1);
       });
 
-      test('should set a List of string joining by listSeparator', () {
-        const list = ['{"a": 1, "b": "xyz"}', '{"a": 0, "b": "zyx"}'];
-        final listString = list.join(KeyValueStorageMMKVImpl.listSeparator);
+      test('should set a List of string using json encode', () {
+        const list = ['{"a": 1, "b": "xyz" }', '{"a": 0, "b": "zyx"}'];
+        final listString = json.encode(list);
 
         sut.set<List<String>>('key', list);
 

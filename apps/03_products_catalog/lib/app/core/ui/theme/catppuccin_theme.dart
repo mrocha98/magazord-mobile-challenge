@@ -21,7 +21,9 @@ sealed class CatppuccinTheme {
       useMaterial3: true,
       colorScheme: ColorScheme(
         background: flavor.base,
-        brightness: Brightness.light,
+        brightness: themeFlavor == ThemeFlavor.latte
+            ? Brightness.light
+            : Brightness.dark,
         error: flavor.surface2,
         onBackground: flavor.text,
         onError: flavor.red,
@@ -83,6 +85,9 @@ sealed class CatppuccinTheme {
         clipBehavior: Clip.hardEdge,
         margin: EdgeInsets.zero,
         color: flavor.base,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: secondaryColor,
       ),
     );
   }

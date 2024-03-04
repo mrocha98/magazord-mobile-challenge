@@ -6,10 +6,13 @@ import 'package:products_catalog/app/models/product.dart';
 class ProductBottomNavigationBar extends StatelessWidget {
   const ProductBottomNavigationBar({
     required this.product,
+    required this.onAddToCartTap,
     super.key,
   });
 
   final Product product;
+
+  final VoidCallback? onAddToCartTap;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +54,7 @@ class ProductBottomNavigationBar extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: onAddToCartTap,
               child: const Row(
                 children: [
                   Icon(Icons.shopping_bag),

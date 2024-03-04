@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:products_catalog/app/core/ui/transitions/bottom_to_top_transition_page.dart';
 import 'package:products_catalog/app/features/products/details/product_details_binder.dart';
 import 'package:products_catalog/app/features/products/details/product_details_page.dart';
 
@@ -15,7 +16,8 @@ sealed class ProductDetailsRouter {
       final idPathParameter = state.pathParameters['id']!;
       final productId = int.parse(idPathParameter);
 
-      return NoTransitionPage(
+      return BottomToTopTransitionPage(
+        key: state.pageKey,
         child: MultiBlocProvider(
           providers: ProductDetailsBinder().binds,
           child: ProductDetailsPage(productId: productId),

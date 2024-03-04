@@ -47,6 +47,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       );
     } catch (ex, st) {
       _logger.error('Failure on event $event', ex, st);
+      emit(const ProductsFailure());
     }
   }
 

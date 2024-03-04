@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:products_catalog/app/core/ui/constants/page_padding.dart';
+import 'package:products_catalog/app/core/ui/helpers/helpers.dart';
 import 'package:products_catalog/app/features/products/details/bloc/product_bloc.dart';
 import 'package:products_catalog/app/features/products/details/widgets/product_bottom_navigation_bar.dart';
 import 'package:products_catalog/app/features/products/details/widgets/product_details.dart';
+import 'package:products_catalog/app/features/products/products_router.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({
@@ -22,10 +24,18 @@ class ProductDetailsPage extends StatefulWidget {
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage>
-    with AfterLayoutMixin {
+    with AfterLayoutMixin, LoaderMixin, ToastMixin {
   @override
   FutureOr<void> afterFirstLayout(BuildContext context) {
     context.read<ProductBloc>().add(ProductInitialized(id: widget.productId));
+  }
+
+  void _onFavoriteTap() {
+    showWarning('Sorry, cannot add to favorites now...');
+  }
+
+  void _onAddToCartTap() {
+    showInfo('This product is out of stock!');
   }
 
   @override
@@ -36,12 +46,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage>
     return BlocConsumer<ProductBloc, ProductState>(
       listener: (context, state) {
         if (state is ProductFailure) {
-          // TODO : hide loader
-          // TODO : show error toast and push replacement to products route
+          hideLoader();
+          showError('Failed to get product information...');
+          goRouter.pushReplacement(ProductsRouter.path);
         } else if (state is ProductInProgress) {
-          // TODO : show loader
+          showLoader();
         } else {
-          // TODO hide loader
+          hideLoader();
         }
       },
       builder: (context, state) {
@@ -57,7 +68,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage>
             ),
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: _onFavoriteTap,
                 icon: const Icon(Icons.favorite_border),
                 splashRadius: 12,
                 tooltip: 'Add to favorites',
@@ -71,7 +82,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage>
                 : null,
           ),
           bottomNavigationBar: state is ProductSuccess
-              ? ProductBottomNavigationBar(product: state.product)
+              ? ProductBottomNavigationBar(
+                  product: state.product,
+                  onAddToCartTap: _onAddToCartTap,
+                )
               : null,
         );
       },

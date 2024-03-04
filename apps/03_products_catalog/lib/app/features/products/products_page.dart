@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:after_layout/after_layout.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:products_catalog/app/core/ui/helpers/helpers.dart';
 import 'package:products_catalog/app/features/products/bloc/products_bloc.dart';
 import 'package:products_catalog/app/features/products/details/product_details_router.dart';
+import 'package:products_catalog/app/features/products/widgets/product_grid_tile.dart';
+import 'package:products_catalog/app/features/products/widgets/product_list_tile.dart';
+import 'package:products_catalog/app/models/product.dart';
 
 enum _ProductsViewMode {
   grid,
@@ -20,7 +23,8 @@ class ProductsPage extends StatefulWidget {
   State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _ProductsPageState extends State<ProductsPage> with AfterLayoutMixin {
+class _ProductsPageState extends State<ProductsPage>
+    with AfterLayoutMixin, LoaderMixin, ToastMixin {
   final _viewMode = ValueNotifier<_ProductsViewMode>(_ProductsViewMode.grid);
 
   @override
@@ -34,13 +38,33 @@ class _ProductsPageState extends State<ProductsPage> with AfterLayoutMixin {
     super.dispose();
   }
 
+  void _onProductTap(Product product) {
+    context.pushNamed(
+      ProductDetailsRouter.name,
+      pathParameters: {'id': product.id.toString()},
+    );
+  }
+
+  String _getSortByLabel(ProductsSortBy sortBy) {
+    return switch (sortBy) {
+      ProductsSortBy.none => 'default',
+      ProductsSortBy.lowerPrice => 'lower price',
+      ProductsSortBy.higherPrice => 'higher price',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return BlocConsumer<ProductsBloc, ProductsState>(
-      listener: (context, state) {
-        // TODO: implement listener
+      listener: (context, state) async {
+        if (state is ProductsFailure) {
+          hideLoader();
+          showError('Failed to get products and categories...');
+        } else if (state is ProductsInProgress) {
+          await showLoader();
+        } else {
+          hideLoader();
+        }
       },
       builder: (context, state) {
         if (state is! ProductsSuccess) {
@@ -121,13 +145,7 @@ class _ProductsPageState extends State<ProductsPage> with AfterLayoutMixin {
                           .map(
                             (sortBy) => DropdownMenuItem(
                               value: sortBy,
-                              child: Text(
-                                switch (sortBy) {
-                                  ProductsSortBy.none => 'default',
-                                  ProductsSortBy.lowerPrice => 'lower price',
-                                  ProductsSortBy.higherPrice => 'higher price',
-                                },
-                              ),
+                              child: Text(_getSortByLabel(sortBy)),
                             ),
                           )
                           .toList(growable: false),
@@ -159,88 +177,25 @@ class _ProductsPageState extends State<ProductsPage> with AfterLayoutMixin {
                       itemCount: state.products.length,
                       itemBuilder: (context, index) {
                         final product = state.products[index];
-                        return Card.outlined(
+                        return ProductGridTile(
                           key: Key('product-card--${product.id}'),
-                          clipBehavior: Clip.hardEdge,
-                          margin: EdgeInsets.zero,
-                          child: InkWell(
-                            onTap: () {
-                              context.pushNamed(
-                                ProductDetailsRouter.name,
-                                pathParameters: {'id': product.id.toString()},
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: theme.primaryColor,
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: product.image,
-                                      placeholder: (_, __) =>
-                                          const SizedBox.expand(),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  child: Text(
-                                    product.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const Divider(),
-                                Container(
-                                  padding: const EdgeInsets.only(bottom: 6),
-                                  child: Text(
-                                    '\$${product.price.toStringAsFixed(2)}',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          product: product,
+                          onTap: () => _onProductTap(product),
                         );
                       },
                     );
                   }
-
                   return ListView.separated(
+                    itemCount: state.products.length,
                     itemBuilder: (context, index) {
                       final product = state.products[index];
-                      return ListTile(
+                      return ProductListTile(
                         key: Key('product-list-title--${product.id}'),
-                        leading: CachedNetworkImage(
-                          imageUrl: product.image,
-                          height: 64,
-                          width: 64,
-                          fit: BoxFit.fill,
-                        ),
-                        title: Text(
-                          product.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text('\$${product.price.toStringAsFixed(2)}'),
-                        onTap: () {
-                          context.pushNamed(
-                            ProductDetailsRouter.name,
-                            pathParameters: {'id': product.id.toString()},
-                          );
-                        },
+                        product: product,
+                        onTap: () => _onProductTap(product),
                       );
                     },
                     separatorBuilder: (_, __) => const Divider(),
-                    itemCount: state.products.length,
                   );
                 },
               ),
