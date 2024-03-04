@@ -1,0 +1,11 @@
+name: magazord_common_packages
+description: Packages that are used in all other packages
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0"
+
+dependencies:
+  equatable: ^2.0.5
+  meta: ^1.11.0

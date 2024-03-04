@@ -1,0 +1,12 @@
+name: magazord_common_packages_for_tests
+description: Packages that are used in all other packages for testing
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0"
+
+dependencies:
+  bloc_test: ^9.1.6
+  faker_dart: ^0.2.1
+  mocktail: ^1.0.3

@@ -1,0 +1,13 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  language:
+    strict-inference: false
+    strict-raw-types: false
+
+linter:
+  rules:
+    public_member_api_docs: false
+    flutter_style_todos: false
+    one_member_abstracts: false
+    matching_super_parameters: true

@@ -1,0 +1,10 @@
+name: magazord_lint
+description: Lint config for all projects.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  very_good_analysis: ^5.1.0

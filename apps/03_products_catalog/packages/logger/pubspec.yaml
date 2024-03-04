@@ -1,0 +1,23 @@
+name: magazord_logger
+description: Logger
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  logger: ^2.0.2+1
+  magazord_common_packages:
+    path: ../common_packages
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  magazord_common_packages_for_tests:
+    path: ../common_packages_for_tests
+  magazord_lint:
+    path: ../lint
